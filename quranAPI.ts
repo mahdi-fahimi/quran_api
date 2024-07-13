@@ -39,8 +39,6 @@ const databasePath = './database/quran.db';
 
 let database = new sqlite3.Database(databasePath);
 
-// function getDataFromDatabase (tableName:string, dataArray:object[]) {
-
 function getQuranTableDataFromDatabase (tableName:string) {
     let sql : string = `SELECT * FROM ${tableName}`;
     database.all(sql, [], (err, rows : object[]) => {
