@@ -16,7 +16,6 @@ let quranTable :suraType[] = []
 let translationTable :object[] = []
 let suraTable :suraTableType[] = []
 let translatorsTable :object[] = []
-let tables:object[][] = [quranTable, translationTable, suraTable, translatorsTable]
 const tableNames : string[] = ['quran', 'translation', 'suras', 'translators'];
 const databasePath = './database/quran.db';
 // const dataBase = new sqlite3.Database(dataBasePath, sqlite3.OPEN_READWRITE, (err) => {
@@ -112,7 +111,6 @@ app.get('/quran', (req : any, res : any) =>{
     })
 })
 app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
-    // let textArray: suraType[] = []
     let textArray: (string | number)[] = []
     quranTable.forEach((suraText) =>{
         if (suraText.surah_number == req.params.surah_number){
@@ -120,14 +118,8 @@ app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
             textArray.push(suraText.aya_number);
         }
     })
-    // let ayaNumber = quranTable.find((suraText) =>{
-    //     if (suraText.aya_number == req.params.aya_number){
-    //         return suraText.aya_number;
-    //     }
-    // })
     res.status(200).json({
         data : textArray,
-
         success : true
     })
 })
@@ -143,7 +135,6 @@ app.get('/translators', (req : any, res : any) =>{
         success : true
     })
 })
-
 app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
     let sura = suraTable.find((item) =>{
         if (item.id == req.params.id){
@@ -152,6 +143,20 @@ app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
     })
     res.status(200).json({
         data : sura,
+        success : true
+    })
+})
+
+app.get('/search/:word', (req : any, res : any) =>{
+    let searchIdArray :(string | number)[] = []
+    quranTable.forEach((aya) =>{
+        if (aya.text.includes(req.params.word)){
+            searchIdArray.push(aya.text);
+            searchIdArray.push(aya.id);
+        }
+    })
+    res.status(200).json({
+        data : searchIdArray,
         success : true
     })
 })
