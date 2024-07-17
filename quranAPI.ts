@@ -1,10 +1,20 @@
 const express = require('express')
 import * as sqlite3 from 'sqlite3';
+interface suraTableType{
+    id : number,
+    sura: string
+}
+interface suraType{
+    id : number,
+    surah_number : number,
+    aya_number : number,
+    text : string
+}
 const app = express()
 const port = 3000
-let quranTable :object[] = []
+let quranTable :suraType[] = []
 let translationTable :object[] = []
-let suraTable :object[] = []
+let suraTable :suraTableType[] = []
 let translatorsTable :object[] = []
 let tables:object[][] = [quranTable, translationTable, suraTable, translatorsTable]
 const tableNames : string[] = ['quran', 'translation', 'suras', 'translators'];
@@ -41,7 +51,7 @@ let database = new sqlite3.Database(databasePath);
 
 function getQuranTableDataFromDatabase (tableName:string) {
     let sql : string = `SELECT * FROM ${tableName}`;
-    database.all(sql, [], (err, rows : object[]) => {
+    database.all(sql, [], (err, rows : suraType[]) => {
         if (err) {
             throw err;
         }
@@ -65,7 +75,7 @@ function getTranslationTableDataFromDatabase (tableName:string) {
 
 function getSuraTableDataFromDatabase (tableName:string) {
     let sql : string = `SELECT * FROM ${tableName}`;
-    database.all(sql, [], (err, rows : object[]) => {
+    database.all(sql, [], (err, rows : suraTableType[]) => {
         if (err) {
             throw err;
         }
@@ -101,21 +111,47 @@ app.get('/quran', (req : any, res : any) =>{
         success : true
     })
 })
+app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
+    // let textArray: suraType[] = []
+    let textArray: (string | number)[] = []
+    quranTable.forEach((suraText) =>{
+        if (suraText.surah_number == req.params.surah_number){
+            textArray.push(suraText.text);
+            textArray.push(suraText.aya_number);
+        }
+    })
+    // let ayaNumber = quranTable.find((suraText) =>{
+    //     if (suraText.aya_number == req.params.aya_number){
+    //         return suraText.aya_number;
+    //     }
+    // })
+    res.status(200).json({
+        data : textArray,
+
+        success : true
+    })
+})
 app.get('/translation', (req : any, res : any) =>{
     res.status(200).json({
         data : translationTable,
         success : true
     })
 })
-app.get('/sura', (req : any, res : any) =>{
-    res.status(200).json({
-        data : suraTable,
-        success : true
-    })
-})
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
         data : translatorsTable,
+        success : true
+    })
+})
+
+app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
+    let sura = suraTable.find((item) =>{
+        if (item.id == req.params.id){
+            return item;
+        }
+    })
+    res.status(200).json({
+        data : sura,
         success : true
     })
 })
