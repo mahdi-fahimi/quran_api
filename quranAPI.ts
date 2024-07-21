@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 import * as sqlite3 from 'sqlite3';
 interface suraTableType{
     id : number,
@@ -12,6 +13,9 @@ interface suraType{
 }
 const app = express()
 const port = 3000
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
 let quranTable :suraType[] = []
 let translationTable :object[] = []
 let suraTable :suraTableType[] = []
@@ -132,6 +136,13 @@ app.get('/translation', (req : any, res : any) =>{
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
         data : translatorsTable,
+        success : true
+    })
+})
+app.get('/sura', (req : any, res : (suraTableType | any) ) =>{
+
+    res.status(200).json({
+        data : suraTable,
         success : true
     })
 })
