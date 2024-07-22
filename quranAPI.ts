@@ -11,13 +11,20 @@ interface suraType{
     aya_number : number,
     text : string
 }
+interface translationType{
+    id : number,
+    surah_number : number,
+    aya_number : number,
+    translator_id : number,
+    text : string
+}
 const app = express()
 const port = 3000
 app.use(cors({
     origin: "http://localhost:5173"
 }))
 let quranTable :suraType[] = []
-let translationTable :object[] = []
+let translationTable :translationType[] = []
 let suraTable :suraTableType[] = []
 let translatorsTable :object[] = []
 const tableNames : string[] = ['quran', 'translation', 'suras', 'translators'];
@@ -66,7 +73,7 @@ function getQuranTableDataFromDatabase (tableName:string) {
 
 function getTranslationTableDataFromDatabase (tableName:string) {
     let sql : string = `SELECT * FROM ${tableName}`;
-    database.all(sql, [], (err, rows : object[]) => {
+    database.all(sql, [], (err, rows : translationType[]) => {
         if (err) {
             throw err;
         }
@@ -119,7 +126,7 @@ app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
     quranTable.forEach((suraText) =>{
         if (suraText.surah_number == req.params.surah_number){
             textArray.push(suraText.text);
-            textArray.push(suraText.aya_number);
+            // textArray.push(suraText.aya_number);
         }
     })
     res.status(200).json({
@@ -127,12 +134,29 @@ app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
         success : true
     })
 })
+
 app.get('/translation', (req : any, res : any) =>{
     res.status(200).json({
         data : translationTable,
         success : true
     })
 })
+
+app.get('/translation/:translator_id&:surah_number', (req : any, res : (translationType|any) ) =>{
+    let textArray: string[] = []
+    translationTable.forEach((translationText) =>{
+        if (translationText.surah_number == req.params.surah_number && translationText.translator_id == req.params.translator_id){
+            textArray.push(translationText.text);
+            // textArray.push(suraText.aya_number);
+        }
+    })
+    res.status(200).json({
+        data : textArray,
+        success : true
+    })
+})
+
+
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
         data : translatorsTable,
@@ -157,7 +181,6 @@ app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
         success : true
     })
 })
-
 app.get('/search/:word', (req : any, res : any) =>{
     let searchIdArray :(string | number)[] = []
     quranTable.forEach((aya) =>{
