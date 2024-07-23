@@ -134,14 +134,12 @@ app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
         success : true
     })
 })
-
 app.get('/translation', (req : any, res : any) =>{
     res.status(200).json({
         data : translationTable,
         success : true
     })
 })
-
 app.get('/translation/:translator_id&:surah_number', (req : any, res : (translationType|any) ) =>{
     let textArray: string[] = []
     translationTable.forEach((translationText) =>{
@@ -155,8 +153,6 @@ app.get('/translation/:translator_id&:surah_number', (req : any, res : (translat
         success : true
     })
 })
-
-
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
         data : translatorsTable,
@@ -181,10 +177,12 @@ app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
         success : true
     })
 })
+
 app.get('/search/:word', (req : any, res : any) =>{
     let searchIdArray :(string | number)[] = []
-    quranTable.forEach((aya) =>{
-        if (aya.text.includes(req.params.word)){
+    quranTable.forEach((aya ) =>{
+        let simpleAya = aya.text.replace(/(َ|ُ|ِ|ً|ٌ|ٍ|ّ)/g, "");
+        if (aya.text.includes(req.params.word) || simpleAya.includes(req.params.word)){
             searchIdArray.push(aya.text);
             searchIdArray.push(aya.id);
         }
