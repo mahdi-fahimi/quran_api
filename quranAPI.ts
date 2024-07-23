@@ -115,12 +115,16 @@ getTranslatorsTableDataFromDatabase(tableNames[3])
 app.get('/', (req : any, res : any) =>{
     res.send('quran phase b');
 })
+
+// getting all quran ayas's info
 app.get('/quran', (req : any, res : any) =>{
     res.status(200).json({
         data : quranTable,
         success : true
     })
 })
+
+// getting nth sura's aya
 app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
     let textArray: (string | number)[] = []
     quranTable.forEach((suraText) =>{
@@ -134,12 +138,16 @@ app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
         success : true
     })
 })
+
+// getting all translations
 app.get('/translation', (req : any, res : any) =>{
     res.status(200).json({
         data : translationTable,
         success : true
     })
 })
+
+// getting nth sura's translation with one of translators
 app.get('/translation/:translator_id&:surah_number', (req : any, res : (translationType|any) ) =>{
     let textArray: string[] = []
     translationTable.forEach((translationText) =>{
@@ -153,12 +161,16 @@ app.get('/translation/:translator_id&:surah_number', (req : any, res : (translat
         success : true
     })
 })
+
+// getting all translators info
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
         data : translatorsTable,
         success : true
     })
 })
+
+// getting all suras info
 app.get('/sura', (req : any, res : (suraTableType | any) ) =>{
 
     res.status(200).json({
@@ -166,6 +178,8 @@ app.get('/sura', (req : any, res : (suraTableType | any) ) =>{
         success : true
     })
 })
+
+// getting nth sura info
 app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
     let sura = suraTable.find((item) =>{
         if (item.id == req.params.id){
@@ -178,20 +192,43 @@ app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
     })
 })
 
+// searching search result = aya text and id
 app.get('/search/:word', (req : any, res : any) =>{
-    let searchIdArray :(string | number)[] = []
+    let searchIdArray :(number)[] = []
+    let searchTextArray :(string)[] = []
     quranTable.forEach((aya ) =>{
-        let simpleAya = aya.text.replace(/(َ|ُ|ِ|ً|ٌ|ٍ|ّ)/g, "");
+        let simpleAya : string = aya.text.replace(/(َ|ُ|ِ|ً|ٌ|ٍ|ّ)/g, "");
         if (aya.text.includes(req.params.word) || simpleAya.includes(req.params.word)){
-            searchIdArray.push(aya.text);
+            searchTextArray.push(aya.text);
             searchIdArray.push(aya.id);
         }
     })
     res.status(200).json({
         data : searchIdArray,
+               searchTextArray,
         success : true
     })
 })
+
+// getting one aya info
+app.get('/aya/:id', (req : any, res : (suraType | any) ) =>{
+    let aya = quranTable.find((item) =>{
+        if (item.id == req.params.id){
+            return item;
+        }
+    })
+    res.status(200).json({
+        data : aya,
+        success : true
+    })
+})
+
+
+
+
+
+
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
