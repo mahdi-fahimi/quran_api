@@ -124,17 +124,19 @@ app.get('/quran', (req : any, res : any) =>{
     })
 })
 
-// getting nth sura's aya
+// getting nth sura ayas
 app.get('/quran/:surah_number', (req : any, res : (suraType|any) ) =>{
-    let textArray: (string | number)[] = []
+    let textArray: string [] = []
+    let ayaNumberArray: number [] = []
     quranTable.forEach((suraText) =>{
         if (suraText.surah_number == req.params.surah_number){
             textArray.push(suraText.text);
-            // textArray.push(suraText.aya_number);
+            ayaNumberArray.push(suraText.aya_number);
         }
     })
     res.status(200).json({
         data : textArray,
+               ayaNumberArray,
         success : true
     })
 })
