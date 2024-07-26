@@ -164,6 +164,28 @@ app.get('/translation/:translator_id&:surah_number', (req : any, res : (translat
     })
 })
 
+// getting one translation
+// app.get('/translation/:translator_id&:surah_number&:aya_number', (req : any, res : (translationType|any) ) =>{
+app.get('/translation/:translator_id&:aya_text', (req : any, res : (translationType|any) ) =>{
+    let Array: any[] = []
+    translationTable.forEach((translationText) =>{
+        if (
+            translationText.text == req.params.aya_text &&
+            translationText.translator_id == req.params.translator_id
+        ){
+            // if (translationText.surah_number === req.params.surah_number &&
+            //     translationText.translator_id === req.params.translator_id &&
+            //     translationText.aya_number === req.params.aya_number
+            // ){
+            Array.push(translationText);
+        }
+    })
+    res.status(200).json({
+        data : Array,
+        success : true
+    })
+})
+
 // getting all translators info
 app.get('/translators', (req : any, res : any) =>{
     res.status(200).json({
@@ -174,7 +196,6 @@ app.get('/translators', (req : any, res : any) =>{
 
 // getting all suras info
 app.get('/sura', (req : any, res : (suraTableType | any) ) =>{
-
     res.status(200).json({
         data : suraTable,
         success : true
@@ -196,18 +217,26 @@ app.get('/sura/:id', (req : any, res : (suraTableType | any) ) =>{
 
 // searching search result = aya text and id
 app.get('/search/:word', (req : any, res : any) =>{
-    let searchIdArray :(number)[] = []
+    let searchAyaNumberArray :(number)[] = []
+    let searchSuraNumberArray :(number)[] = []
+    let searchSuraNameArray :(number | suraTableType | string)[] = []
     let searchTextArray :(string)[] = []
     quranTable.forEach((aya ) =>{
         let simpleAya : string = aya.text.replace(/(َ|ُ|ِ|ً|ٌ|ٍ|ّ)/g, "");
         if (aya.text.includes(req.params.word) || simpleAya.includes(req.params.word)){
             searchTextArray.push(aya.text);
-            searchIdArray.push(aya.id);
+            // searchIdArray.push(aya.id);
+            searchAyaNumberArray.push(aya.aya_number);
+            searchSuraNumberArray.push(aya.surah_number);
+            searchSuraNameArray.push(suraTable[aya.surah_number-1].sura);
+        //     اسم سوره را همین جا بفرست
         }
     })
     res.status(200).json({
-        data : searchIdArray,
+        data : searchAyaNumberArray,
                searchTextArray,
+               searchSuraNameArray,
+               searchSuraNumberArray,
         success : true
     })
 })
@@ -224,12 +253,6 @@ app.get('/aya/:id', (req : any, res : (suraType | any) ) =>{
         success : true
     })
 })
-
-
-
-
-
-
 
 
 app.listen(port, () => {
