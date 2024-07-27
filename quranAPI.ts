@@ -20,9 +20,6 @@ interface translationType{
 }
 const app = express()
 const port = 3000
-app.use(cors({
-    origin: "http://localhost:5173"
-}))
 let quranTable :suraType[] = []
 let translationTable :translationType[] = []
 let suraTable :suraTableType[] = []
@@ -56,6 +53,9 @@ const databasePath = './database/quran.db';
 //     });
 //
 // }
+app.use(cors({
+    origin: "http://localhost:5173"
+}))
 
 let database = new sqlite3.Database(databasePath);
 
@@ -113,7 +113,7 @@ getSuraTableDataFromDatabase(tableNames[2])
 getTranslatorsTableDataFromDatabase(tableNames[3])
 
 app.get('/', (req : any, res : any) =>{
-    res.send('quran phase b');
+    res.send('quran API (phase b)');
 })
 
 // getting all quran ayas's info
@@ -155,7 +155,6 @@ app.get('/translation/:translator_id&:surah_number', (req : any, res : (translat
     translationTable.forEach((translationText) =>{
         if (translationText.surah_number == req.params.surah_number && translationText.translator_id == req.params.translator_id){
             textArray.push(translationText.text);
-            // textArray.push(suraText.aya_number);
         }
     })
     res.status(200).json({
@@ -165,23 +164,30 @@ app.get('/translation/:translator_id&:surah_number', (req : any, res : (translat
 })
 
 // getting one translation
-// app.get('/translation/:translator_id&:surah_number&:aya_number', (req : any, res : (translationType|any) ) =>{
-app.get('/translation/:translator_id&:aya_text', (req : any, res : (translationType|any) ) =>{
-    let Array: any[] = []
-    translationTable.forEach((translationText) =>{
-        if (
-            translationText.text == req.params.aya_text &&
-            translationText.translator_id == req.params.translator_id
-        ){
-            // if (translationText.surah_number === req.params.surah_number &&
-            //     translationText.translator_id === req.params.translator_id &&
-            //     translationText.aya_number === req.params.aya_number
-            // ){
-            Array.push(translationText);
+app.get('/translation/:translator_id/:surah_number/:aya_number', (req : any, res : (translationType|any) ) =>{
+    let textArray : translationType[] = []
+    let resultArray: translationType[] = []
+    let finalResultArray: string[] = []
+    translationTable.forEach(translation => {
+        if (translation.translator_id == req.params.translator_id){
+            textArray.push(translation);
         }
     })
+
+    textArray.forEach(translation => {
+        if (translation.surah_number == req.params.surah_number ){
+            resultArray.push(translation)
+        }
+    })
+
+    resultArray.forEach(translation => {
+        if (translation.aya_number == req.params.aya_number){
+            finalResultArray.push(translation.text);
+        }
+    })
+
     res.status(200).json({
-        data : Array,
+        data : finalResultArray,
         success : true
     })
 })
@@ -225,11 +231,9 @@ app.get('/search/:word', (req : any, res : any) =>{
         let simpleAya : string = aya.text.replace(/(َ|ُ|ِ|ً|ٌ|ٍ|ّ)/g, "");
         if (aya.text.includes(req.params.word) || simpleAya.includes(req.params.word)){
             searchTextArray.push(aya.text);
-            // searchIdArray.push(aya.id);
             searchAyaNumberArray.push(aya.aya_number);
             searchSuraNumberArray.push(aya.surah_number);
             searchSuraNameArray.push(suraTable[aya.surah_number-1].sura);
-        //     اسم سوره را همین جا بفرست
         }
     })
     res.status(200).json({
@@ -253,7 +257,6 @@ app.get('/aya/:id', (req : any, res : (suraType | any) ) =>{
         success : true
     })
 })
-
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
